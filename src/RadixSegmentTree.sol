@@ -24,4 +24,13 @@ library RadixSegmentTreeLib {
     function update(RadixSegmentTree storage tree, uint256 from, uint256 to) internal {}
 
     function query(RadixSegmentTree storage tree, uint256 value) internal view returns (uint256 left, uint256 mid, uint256 right) {}
+
+    function _getNode(uint256 slot) internal view returns (Node memory node) {
+        assembly {
+            let data := sload(slot)
+            mstore(node, and(data, 1))
+            mstore(add(node, 0x20), and(shr(1, data), 0xffff))
+            mstore(add(node, 0x40), shr(17, data))
+        }
+    }
 }
