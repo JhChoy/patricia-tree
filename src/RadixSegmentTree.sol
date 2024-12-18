@@ -5,7 +5,7 @@ pragma solidity >=0.8.0;
 library RadixSegmentTreeLib {
     // bytes32(uint256(keccak256("RadixSegmentTree")) - 1)
     uint256 internal constant ROOT = 0x93d586536338c237314802209ad99ffc16300a0123983a9edf87427344edd372;
-    uint256 internal constant MAX_VALUE = 2**239 - 1;
+    uint256 internal constant MAX_VALUE = 2 ** 239 - 1;
 
     struct RadixSegmentTree {
         mapping(bytes32 entry => uint256) branch;
@@ -23,9 +23,20 @@ library RadixSegmentTreeLib {
 
     function update(RadixSegmentTree storage tree, uint256 from, uint256 to) internal {}
 
-    function query(RadixSegmentTree storage tree, uint256 value) internal view returns (uint256 left, uint256 mid, uint256 right) {}
+    function query(RadixSegmentTree storage tree, uint256 value)
+        internal
+        view
+        returns (uint256 left, uint256 mid, uint256 right)
+    {}
 
-    function _getNode(uint256 slot) internal view returns (Node memory node) {
+    function _slot(RadixSegmentTree storage tree, uint256 entry) internal pure returns (bytes32 slot) {
+        assembly {
+            slot := tree.slot
+        }
+        slot = keccak256(abi.encodePacked(ROOT, slot, entry));
+    }
+
+    function _getNode(bytes32 slot) internal view returns (Node memory node) {
         assembly {
             let data := sload(slot)
             mstore(node, and(data, 1))
