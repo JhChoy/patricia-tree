@@ -31,7 +31,7 @@ library RadixSegmentTreeLib {
         returns (uint256 left, uint256 mid, uint256 right)
     {}
 
-    function _slot(RadixSegmentTree storage tree, uint256 entry) internal pure returns (bytes32 slot) {
+    function _slot(RadixSegmentTree storage tree, uint256 entry) private pure returns (bytes32 slot) {
         assembly {
             slot := tree.slot
         }
