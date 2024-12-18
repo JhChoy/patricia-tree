@@ -14,9 +14,9 @@ library RadixSegmentTreeLib {
     }
 
     struct Node {
-        bool isLeaf;
         uint16 children;
-        uint256 entry; // @dev entry < 2**239
+        uint8 length; // @dev length < 2**4
+        uint256 entry; // @dev entry < 2**236
     }
 
     function add(RadixSegmentTree storage tree, uint256 value) internal {}
@@ -41,9 +41,9 @@ library RadixSegmentTreeLib {
     function _getNode(bytes32 slot) internal view returns (Node memory node) {
         assembly {
             let data := sload(slot)
-            mstore(node, and(data, 1))
-            mstore(add(node, 0x20), and(shr(1, data), 0xffff))
-            mstore(add(node, 0x40), shr(17, data))
+            mstore(node, and(data, 0xffff))
+            mstore(add(node, 0x20), and(shr(16, data), 0xf))
+            mstore(add(node, 0x40), shr(20, data))
         }
     }
 }
