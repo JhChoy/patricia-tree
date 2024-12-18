@@ -38,20 +38,29 @@ library RadixSegmentTreeLib {
         slot = keccak256(abi.encodePacked(ROOT, slot, entry));
     }
 
-    function _getRootNode(RadixSegmentTree storage tree) private view returns (Node memory) {
+    function _loadRootNode(RadixSegmentTree storage tree) private view returns (Node memory) {
         bytes32 slot;
         assembly {
             slot := tree.slot
         }
-        return _getNode(slot);
+        return _loadNode(slot);
     }
 
-    function _getNode(bytes32 slot) private view returns (Node memory node) {
+    function _loadNode(bytes32 slot) private view returns (Node memory node) {
         assembly {
             let data := sload(slot)
             mstore(node, and(data, 0xffff))
             mstore(add(node, 0x20), and(shr(16, data), 0xf))
             mstore(add(node, 0x40), shr(24, data))
+        }
+    }
+
+    function _storeNode(bytes32 slot, Node memory node) private {
+        assembly {
+            let data := mload(node)
+            data := add(data, shl(16, mload(add(node, 0x20))))
+            data := add(data, shl(24, mload(add(node, 0x40))))
+            sstore(slot, data)
         }
     }
 }

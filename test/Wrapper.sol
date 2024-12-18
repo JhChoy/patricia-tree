@@ -7,7 +7,7 @@ import "../src/RadixSegmentTree.sol";
 contract RadixSegmentTreeWrapper {
     using RadixSegmentTreeLib for RadixSegmentTreeLib.RadixSegmentTree;
 
-    RadixSegmentTreeLib.RadixSegmentTree public tree;
+    RadixSegmentTreeLib.RadixSegmentTree internal tree;
 
     function add(uint256 value) external {
         tree.add(value);
