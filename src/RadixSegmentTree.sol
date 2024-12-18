@@ -7,7 +7,7 @@ pragma solidity >=0.8.0;
 library RadixSegmentTreeLib {
     // bytes32(uint256(keccak256("RadixSegmentTree")) - 1)
     uint256 internal constant ROOT = 0x93d586536338c237314802209ad99ffc16300a0123983a9edf87427344edd372;
-    uint256 internal constant MAX_VALUE = 2 ** 239 - 1;
+    uint256 internal constant MAX_VALUE = 2 ** 236 - 1;
 
     struct RadixSegmentTree {
         mapping(bytes32 entry => uint256) branch;
