@@ -2,6 +2,8 @@
 
 pragma solidity >=0.8.0;
 
+/// @notice Radix-Segment Tree implementation.
+/// @author JChoy (https://github.com/JhChoy/radix-segment-tree/blob/master/src/RadixSegmentTree.sol)
 library RadixSegmentTreeLib {
     // bytes32(uint256(keccak256("RadixSegmentTree")) - 1)
     uint256 internal constant ROOT = 0x93d586536338c237314802209ad99ffc16300a0123983a9edf87427344edd372;
