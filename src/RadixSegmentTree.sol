@@ -7,7 +7,7 @@ pragma solidity >=0.8.0;
 library RadixSegmentTreeLib {
     // bytes32(uint256(keccak256("RadixSegmentTree")) - 1)
     uint256 internal constant ROOT = 0x93d586536338c237314802209ad99ffc16300a0123983a9edf87427344edd372;
-    uint256 internal constant MAX_VALUE = 2 ** 236 - 1;
+    uint256 internal constant MAX_VALUE = 2 ** 232 - 1;
 
     struct RadixSegmentTree {
         mapping(bytes32 entry => uint256) branch;
@@ -16,7 +16,7 @@ library RadixSegmentTreeLib {
     struct Node {
         uint16 children;
         uint8 length; // @dev length < 2**4
-        uint256 entry; // @dev entry < 2**236
+        uint232 entry;
     }
 
     function add(RadixSegmentTree storage tree, uint256 value) internal {}
@@ -51,7 +51,7 @@ library RadixSegmentTreeLib {
             let data := sload(slot)
             mstore(node, and(data, 0xffff))
             mstore(add(node, 0x20), and(shr(16, data), 0xf))
-            mstore(add(node, 0x40), shr(20, data))
+            mstore(add(node, 0x40), shr(24, data))
         }
     }
 }
