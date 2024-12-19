@@ -5,6 +5,7 @@ pragma solidity >=0.8.0;
 /// @notice Radix-Segment Tree implementation.
 /// @author JChoy (https://github.com/JhChoy/radix-segment-tree/blob/master/src/RadixSegmentTree.sol)
 library RadixSegmentTreeLib {
+    error OutOfRange();
     error WrongOffset();
 
     // bytes32(uint256(keccak256("RadixSegmentTree")) - 1)
@@ -18,23 +19,35 @@ library RadixSegmentTreeLib {
     struct Node {
         uint16 children;
         uint8 length; // @dev length < 2**4
-        uint232 entry;
+        uint256 entry; // @dev entry <= MAX_VALUE
     }
 
-    function add(RadixSegmentTree storage tree, uint232 value) internal {
+    function _checkRange(uint256 value) private pure {
+        if (value > MAX_VALUE) revert OutOfRange();
     }
 
-    function remove(RadixSegmentTree storage tree, uint232 value) internal {}
+    function add(RadixSegmentTree storage tree, uint256 value) internal {
+        _checkRange(value);
+    }
 
-    function update(RadixSegmentTree storage tree, uint232 from, uint232 to) internal {}
+    function remove(RadixSegmentTree storage tree, uint256 value) internal {
+        _checkRange(value);
+    }
 
-    function query(RadixSegmentTree storage tree, uint232 value)
+    function update(RadixSegmentTree storage tree, uint256 from, uint256 to) internal {
+        _checkRange(from);
+        _checkRange(to);
+    }
+
+    function query(RadixSegmentTree storage tree, uint256 value)
         internal
         view
         returns (uint256 left, uint256 mid, uint256 right)
-    {}
+    {
+        _checkRange(value);
+    }
 
-    function findBranch(uint256 a, uint256 b, uint8 offset) internal pure returns (uint256 r, uint8 length) {
+    function findBranch(uint256 a, uint256 b, uint8 offset) internal pure returns (uint256 branch, uint8 length) {
         require(a != b && offset < 64);
         assembly {
             // a = 0x132xx...x
@@ -56,7 +69,7 @@ library RadixSegmentTreeLib {
                 // If c < mask, then a and b have different hex digits.
                 // 0xffffxxx...xx < 0xfffff00...00
                 if lt(c, mask) {
-                    r := and(a, lastMask)
+                    branch := and(a, lastMask)
                     // Find the length of the common prefix.
                     // `offset` cannot be 64, because a != b.
                     length := sub(63, offset)
@@ -66,10 +79,10 @@ library RadixSegmentTreeLib {
             }
         }
         // Sanity check
-        require(r <= a && r <= b);
+        require(branch <= a && branch <= b);
     }
 
-    function _slot(RadixSegmentTree storage tree, uint232 entry) private pure returns (bytes32 slot) {
+    function _slot(RadixSegmentTree storage tree, uint256 entry) private pure returns (bytes32 slot) {
         assembly {
             slot := tree.slot
         }
