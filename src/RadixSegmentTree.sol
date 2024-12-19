@@ -16,10 +16,15 @@ library RadixSegmentTreeLib {
         mapping(bytes32 entry => uint256) branch;
     }
 
+    struct Value {
+        uint8 length; // @dev 4 < length
+        uint256 value; // @dev value <= MAX_VALUE
+    }
+
     struct Node {
         uint16 children;
-        uint8 length; // @dev length < 2**4
-        uint256 entry; // @dev entry <= MAX_VALUE
+        Value entry;
+        uint256 addr; // @dev tree.slot or encoded value
     }
 
     function _checkRange(uint256 value) private pure {
@@ -82,36 +87,49 @@ library RadixSegmentTreeLib {
         require(branch <= a && branch <= b);
     }
 
-    function _slot(RadixSegmentTree storage tree, uint256 entry) private pure returns (bytes32 slot) {
+    function _slot(RadixSegmentTree storage tree, uint256 addr) private pure returns (bytes32 slot) {
         assembly {
             slot := tree.slot
         }
-        slot = keccak256(abi.encodePacked(ROOT, slot, entry));
+        slot = keccak256(abi.encodePacked(ROOT, slot, addr));
     }
 
-    function _loadRootNode(RadixSegmentTree storage tree) private view returns (Node memory) {
-        bytes32 slot;
+    function _loadRootNode(RadixSegmentTree storage tree) private view returns (Node memory root) {
+        uint256 data;
+        uint256 slot;
         assembly {
+            data := sload(tree.slot)
             slot := tree.slot
         }
-        return _loadNode(slot);
+        root.children = uint16(data & 0xffff);
+        root.entry = _decodeValue(data >> 16);
+        root.addr = slot;
     }
 
-    function _loadNode(bytes32 slot) private view returns (Node memory node) {
+    function _loadNode(RadixSegmentTree storage tree, Value memory addr) private view returns (Node memory node) {
+        node.addr = _encodeValue(addr);
+        bytes32 slot = _slot(tree, node.addr);
+        uint256 data;
         assembly {
-            let data := sload(slot)
-            mstore(node, and(data, 0xffff))
-            mstore(add(node, 0x20), and(shr(16, data), 0xf))
-            mstore(add(node, 0x40), shr(24, data))
+            data := sload(slot)
         }
+        node.children = uint16(data & 0xffff);
+        node.entry = _decodeValue(data >> 16);
     }
 
-    function _storeNode(bytes32 slot, Node memory node) private {
+    function _storeNode(RadixSegmentTree storage tree, Node memory node) private {
+        bytes32 slot = _slot(tree, node.addr);
+        uint256 data = _encodeValue(node.entry) << 16 | node.children;
         assembly {
-            let data := mload(node)
-            data := add(data, shl(16, mload(add(node, 0x20))))
-            data := add(data, shl(24, mload(add(node, 0x40))))
             sstore(slot, data)
         }
+    }
+
+    function _encodeValue(Value memory v) private pure returns (uint256) {
+        return v.value << 8 | v.length;
+    }
+
+    function _decodeValue(uint256 v) private pure returns (Value memory) {
+        return Value(uint8(v & 0xff), v >> 8);
     }
 }
