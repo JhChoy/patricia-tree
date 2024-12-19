@@ -19,19 +19,20 @@ library RadixSegmentTreeLib {
         uint232 entry;
     }
 
-    function add(RadixSegmentTree storage tree, uint256 value) internal {}
+    function add(RadixSegmentTree storage tree, uint232 value) internal {
+    }
 
-    function remove(RadixSegmentTree storage tree, uint256 value) internal {}
+    function remove(RadixSegmentTree storage tree, uint232 value) internal {}
 
-    function update(RadixSegmentTree storage tree, uint256 from, uint256 to) internal {}
+    function update(RadixSegmentTree storage tree, uint232 from, uint232 to) internal {}
 
-    function query(RadixSegmentTree storage tree, uint256 value)
+    function query(RadixSegmentTree storage tree, uint232 value)
         internal
         view
         returns (uint256 left, uint256 mid, uint256 right)
     {}
 
-    function _slot(RadixSegmentTree storage tree, uint256 entry) private pure returns (bytes32 slot) {
+    function _slot(RadixSegmentTree storage tree, uint232 entry) private pure returns (bytes32 slot) {
         assembly {
             slot := tree.slot
         }

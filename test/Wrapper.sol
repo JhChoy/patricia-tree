@@ -9,19 +9,19 @@ contract RadixSegmentTreeWrapper {
 
     RadixSegmentTreeLib.RadixSegmentTree internal tree;
 
-    function add(uint256 value) external {
+    function add(uint232 value) external {
         tree.add(value);
     }
 
-    function remove(uint256 value) external {
+    function remove(uint232 value) external {
         tree.remove(value);
     }
 
-    function update(uint256 from, uint256 to) external {
+    function update(uint232 from, uint232 to) external {
         tree.update(from, to);
     }
 
-    function query(uint256 value) external view returns (uint256 left, uint256 mid, uint256 right) {
+    function query(uint232 value) external view returns (uint256 left, uint256 mid, uint256 right) {
         return tree.query(value);
     }
 }
