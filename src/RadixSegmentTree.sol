@@ -52,7 +52,7 @@ library RadixSegmentTreeLib {
         _checkRange(value);
     }
 
-    function findParent(uint256 a, uint256 b, uint8 offset) internal pure returns (uint256 parent, uint8 length) {
+    function findParent(uint256 a, uint256 b, uint8 offset) internal pure returns (Data memory parent) {
         require(a != b && offset < 64);
         assembly {
             // a = 0x132xx...x
@@ -74,17 +74,17 @@ library RadixSegmentTreeLib {
                 // If c < mask, then a and b have different hex digits.
                 // 0xffffxxx...xx < 0xfffff00...00
                 if lt(c, mask) {
-                    parent := and(a, lastMask)
+                    mstore(add(parent, 0x20), and(a, lastMask))
                     // Find the length of the common prefix.
                     // `offset` cannot be 64, because a != b.
-                    length := sub(63, offset)
+                    mstore(parent, sub(63, offset))
                     break
                 }
                 lastMask := mask
             }
         }
         // Sanity check
-        require(parent <= a && parent <= b);
+        require(parent.value <= a && parent.value <= b);
     }
 
     function _slot(RadixSegmentTree storage tree, uint256 addr) private pure returns (bytes32 slot) {

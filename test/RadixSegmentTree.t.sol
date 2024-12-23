@@ -80,19 +80,18 @@ contract RadixSegmentTreeTest is Test {
     }
 
     function testFindParent() public {
-        uint256 parent;
-        uint8 length;
-        (parent, length) = wrapper.findParent(0x1, 0x2, 0);
-        assertEq(parent, 0);
-        assertEq(length, 63);
-        (parent, length) = wrapper.findParent(0x1234abc, 0x1234bbb, 0);
-        assertEq(parent, 0x1234000);
-        assertEq(length, 61);
-        (parent, length) = wrapper.findParent(0x1234abc, 0x1234bbb, 61);
-        assertEq(parent, 0x1234000);
-        assertEq(length, 61);
+        RadixSegmentTreeLib.Data memory parent;
+        parent = wrapper.findParent(0x1, 0x2, 0);
+        assertEq(parent.value, 0);
+        assertEq(parent.length, 63);
+        parent = wrapper.findParent(0x1234abc, 0x1234bbb, 0);
+        assertEq(parent.value, 0x1234000);
+        assertEq(parent.length, 61);
+        parent = wrapper.findParent(0x1234abc, 0x1234bbb, 61);
+        assertEq(parent.value, 0x1234000);
+        assertEq(parent.length, 61);
         vm.expectRevert(abi.encodeWithSelector(RadixSegmentTreeLib.WrongOffset.selector));
-        (parent, length) = wrapper.findParent(0x1234abc, 0x1234bbb, 62);
+        parent = wrapper.findParent(0x1234abc, 0x1234bbb, 62);
     }
 
     function testFindParentFuzz1(uint232 a, uint232 b) public view {
@@ -105,14 +104,13 @@ contract RadixSegmentTreeTest is Test {
         uint8 expectedLength = 63 - p / 4;
         uint256 expectedParent;
         expectedParent = expectedLength == 0 ? 0 : a & ~((1 << ((64 - expectedLength) * 4)) - 1);
-        uint256 parent;
-        uint8 length;
+        RadixSegmentTreeLib.Data memory parent;
         for (uint8 i = 0; i < expectedLength + 1; ++i) {
             console.logBytes32(bytes32(a));
             console.logBytes32(bytes32(b));
-            (parent, length) = wrapper.findParent(a, b, i);
-            assertEq(bytes32(parent), bytes32(expectedParent));
-            assertEq(length, expectedLength);
+            parent = wrapper.findParent(a, b, i);
+            assertEq(bytes32(parent.value), bytes32(expectedParent));
+            assertEq(parent.length, expectedLength);
         }
     }
 }
