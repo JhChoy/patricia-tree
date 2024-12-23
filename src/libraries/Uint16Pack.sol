@@ -68,7 +68,7 @@ library Uint16Pack {
     }
 
     function sum16(uint256 packed, uint256 from, uint256 to) internal pure returns (uint256) {
-        if (from > 15 || to > 16 || from > to) revert OutOfRange();
+        if (from > 15 || to > 16) revert OutOfRange();
         return sum16Unsafe(packed, from, to);
     }
 

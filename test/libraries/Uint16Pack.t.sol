@@ -124,7 +124,7 @@ contract Uint16PackTest is Test {
 
     function testSum16Range(uint16[16] memory values, uint8 start, uint8 end) public {
         uint256 packed = _build(values);
-        if (start > 15 || end > 16 || start > end) {
+        if (start > 15 || end > 16) {
             vm.expectRevert(abi.encodeWithSelector(Uint16Pack.OutOfRange.selector));
             wrapper.sum16(packed, start, end);
         } else {
@@ -133,7 +133,7 @@ contract Uint16PackTest is Test {
     }
 
     function testSum16Unsafe(uint16[16] memory values, uint8 start, uint8 end) public view {
-        vm.assume(start <= 15 && end <= 16 && start <= end);
+        vm.assume(start <= 15 && end <= 16);
         uint256 packed = _build(values);
         uint256 result = wrapper.sum16Unsafe(packed, start, end);
         assertEq(result, _sum(values, start, end));
