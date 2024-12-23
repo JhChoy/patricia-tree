@@ -11,6 +11,8 @@ library RadixSegmentTreeLib {
     // bytes32(uint256(keccak256("RadixSegmentTree")) - 1)
     uint256 internal constant ROOT = 0x93d586536338c237314802209ad99ffc16300a0123983a9edf87427344edd372;
     uint256 internal constant MAX_VALUE = 2 ** 232 - 1;
+    uint8 internal constant MAX_LENGTH = 64;
+    uint8 internal constant MAX_OFFSET = 63;
 
     struct RadixSegmentTree {
         mapping(uint256 data => uint256) children;
@@ -53,14 +55,14 @@ library RadixSegmentTreeLib {
     }
 
     function findParent(uint256 a, uint256 b, uint8 offset) internal pure returns (Data memory parent) {
-        require(a != b && offset < 64);
+        require(a != b && offset < MAX_LENGTH);
         assembly {
             // a = 0x132xx...x
             // b = 0x134xx...x
             // c = 0xffxxx...x
             let c := not(xor(a, b))
             // Generate `offset` number of 0x`f`s at the front.
-            offset := sub(64, offset)
+            offset := sub(MAX_LENGTH, offset)
             let lastMask := not(sub(shl(shl(2, offset), 1), 1)) // ~((1 << (offset << 2)) - 1)
             if lt(c, lastMask) {
                 mstore(0x00, 0xea08b33a) // `WrongOffset()`.
@@ -77,7 +79,7 @@ library RadixSegmentTreeLib {
                     mstore(add(parent, 0x20), and(a, lastMask))
                     // Find the length of the common prefix.
                     // `offset` cannot be 64, because a != b.
-                    mstore(parent, sub(63, offset))
+                    mstore(parent, sub(MAX_OFFSET, offset))
                     break
                 }
                 lastMask := mask
