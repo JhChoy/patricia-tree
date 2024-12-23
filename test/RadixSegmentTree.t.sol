@@ -3,7 +3,7 @@
 pragma solidity ^0.8.13;
 
 import "../src/RadixSegmentTree.sol";
-import "./Wrapper.sol";
+import "./RadixSegmentTreeWrapper.sol";
 
 import "forge-std/Test.sol";
 
