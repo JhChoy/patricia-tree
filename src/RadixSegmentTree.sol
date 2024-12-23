@@ -102,34 +102,34 @@ library RadixSegmentTreeLib {
             slot := tree.slot
         }
         root.size = uint16(data & 0xffff);
-        root.data = _decodeValue(data >> 16);
+        root.data = _decodeData(data >> 16);
         root.addr = slot;
     }
 
     function _loadNode(RadixSegmentTree storage tree, Data memory addr) private view returns (Node memory node) {
-        node.addr = _encodeValue(addr);
+        node.addr = _encodeData(addr);
         bytes32 slot = _slot(tree, node.addr);
         uint256 data;
         assembly {
             data := sload(slot)
         }
         node.size = uint16(data & 0xffff);
-        node.data = _decodeValue(data >> 16);
+        node.data = _decodeData(data >> 16);
     }
 
     function _storeNode(RadixSegmentTree storage tree, Node memory node) private {
         bytes32 slot = _slot(tree, node.addr);
-        uint256 data = _encodeValue(node.data) << 16 | node.size;
+        uint256 data = _encodeData(node.data) << 16 | node.size;
         assembly {
             sstore(slot, data)
         }
     }
 
-    function _encodeValue(Data memory v) private pure returns (uint256) {
+    function _encodeData(Data memory v) private pure returns (uint256) {
         return v.value << 8 | v.length;
     }
 
-    function _decodeValue(uint256 v) private pure returns (Data memory) {
+    function _decodeData(uint256 v) private pure returns (Data memory) {
         return Data(uint8(v & 0xff), v >> 8);
     }
 }
