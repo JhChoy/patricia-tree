@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 
-pragma solidity >=0.8.0;
+pragma solidity ^0.8.0;
 
 /// @notice Radix-Segment Tree implementation.
 /// @author JChoy (https://github.com/JhChoy/radix-segment-tree/blob/master/src/RadixSegmentTree.sol)
@@ -13,17 +13,17 @@ library RadixSegmentTreeLib {
     uint256 internal constant MAX_VALUE = 2 ** 232 - 1;
 
     struct RadixSegmentTree {
-        mapping(bytes32 entry => uint256) branch;
+        mapping(uint256 data => uint256) children;
     }
 
-    struct Value {
+    struct Data {
         uint8 length; // @dev 4 < length
         uint256 value; // @dev value <= MAX_VALUE
     }
 
     struct Node {
-        uint16 children;
-        Value entry;
+        uint16 size;
+        Data data;
         uint256 addr; // @dev tree.slot or encoded value
     }
 
@@ -52,7 +52,7 @@ library RadixSegmentTreeLib {
         _checkRange(value);
     }
 
-    function findBranch(uint256 a, uint256 b, uint8 offset) internal pure returns (uint256 branch, uint8 length) {
+    function findParent(uint256 a, uint256 b, uint8 offset) internal pure returns (uint256 parent, uint8 length) {
         require(a != b && offset < 64);
         assembly {
             // a = 0x132xx...x
@@ -74,7 +74,7 @@ library RadixSegmentTreeLib {
                 // If c < mask, then a and b have different hex digits.
                 // 0xffffxxx...xx < 0xfffff00...00
                 if lt(c, mask) {
-                    branch := and(a, lastMask)
+                    parent := and(a, lastMask)
                     // Find the length of the common prefix.
                     // `offset` cannot be 64, because a != b.
                     length := sub(63, offset)
@@ -84,7 +84,7 @@ library RadixSegmentTreeLib {
             }
         }
         // Sanity check
-        require(branch <= a && branch <= b);
+        require(parent <= a && parent <= b);
     }
 
     function _slot(RadixSegmentTree storage tree, uint256 addr) private pure returns (bytes32 slot) {
@@ -101,35 +101,35 @@ library RadixSegmentTreeLib {
             data := sload(tree.slot)
             slot := tree.slot
         }
-        root.children = uint16(data & 0xffff);
-        root.entry = _decodeValue(data >> 16);
+        root.size = uint16(data & 0xffff);
+        root.data = _decodeValue(data >> 16);
         root.addr = slot;
     }
 
-    function _loadNode(RadixSegmentTree storage tree, Value memory addr) private view returns (Node memory node) {
+    function _loadNode(RadixSegmentTree storage tree, Data memory addr) private view returns (Node memory node) {
         node.addr = _encodeValue(addr);
         bytes32 slot = _slot(tree, node.addr);
         uint256 data;
         assembly {
             data := sload(slot)
         }
-        node.children = uint16(data & 0xffff);
-        node.entry = _decodeValue(data >> 16);
+        node.size = uint16(data & 0xffff);
+        node.data = _decodeValue(data >> 16);
     }
 
     function _storeNode(RadixSegmentTree storage tree, Node memory node) private {
         bytes32 slot = _slot(tree, node.addr);
-        uint256 data = _encodeValue(node.entry) << 16 | node.children;
+        uint256 data = _encodeValue(node.data) << 16 | node.size;
         assembly {
             sstore(slot, data)
         }
     }
 
-    function _encodeValue(Value memory v) private pure returns (uint256) {
+    function _encodeValue(Data memory v) private pure returns (uint256) {
         return v.value << 8 | v.length;
     }
 
-    function _decodeValue(uint256 v) private pure returns (Value memory) {
-        return Value(uint8(v & 0xff), v >> 8);
+    function _decodeValue(uint256 v) private pure returns (Data memory) {
+        return Data(uint8(v & 0xff), v >> 8);
     }
 }

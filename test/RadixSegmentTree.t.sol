@@ -79,39 +79,39 @@ contract RadixSegmentTreeTest is Test {
         }
     }
 
-    function testFindBranch() public {
-        uint256 branch;
+    function testFindParent() public {
+        uint256 parent;
         uint8 length;
-        (branch, length) = wrapper.findBranch(0x1, 0x2, 0);
-        assertEq(branch, 0);
+        (parent, length) = wrapper.findParent(0x1, 0x2, 0);
+        assertEq(parent, 0);
         assertEq(length, 63);
-        (branch, length) = wrapper.findBranch(0x1234abc, 0x1234bbb, 0);
-        assertEq(branch, 0x1234000);
+        (parent, length) = wrapper.findParent(0x1234abc, 0x1234bbb, 0);
+        assertEq(parent, 0x1234000);
         assertEq(length, 61);
-        (branch, length) = wrapper.findBranch(0x1234abc, 0x1234bbb, 61);
-        assertEq(branch, 0x1234000);
+        (parent, length) = wrapper.findParent(0x1234abc, 0x1234bbb, 61);
+        assertEq(parent, 0x1234000);
         assertEq(length, 61);
         vm.expectRevert(abi.encodeWithSelector(RadixSegmentTreeLib.WrongOffset.selector));
-        (branch, length) = wrapper.findBranch(0x1234abc, 0x1234bbb, 62);
+        (parent, length) = wrapper.findParent(0x1234abc, 0x1234bbb, 62);
     }
 
-    function testFindBranchFuzz1(uint232 a, uint232 b) public view {
+    function testFindParentFuzz1(uint232 a, uint232 b) public view {
         vm.assume(a != b);
-        wrapper.findBranch(a, b, 0);
+        wrapper.findParent(a, b, 0);
     }
 
-    function testFindBranchFuzz2(uint256 a, uint8 p) public view {
+    function testFindParentFuzz2(uint256 a, uint8 p) public view {
         uint256 b = a ^ (1 << p);
         uint8 expectedLength = 63 - p / 4;
-        uint256 expectedBranch;
-        expectedBranch = expectedLength == 0 ? 0 : a & ~((1 << ((64 - expectedLength) * 4)) - 1);
-        uint256 branch;
+        uint256 expectedParent;
+        expectedParent = expectedLength == 0 ? 0 : a & ~((1 << ((64 - expectedLength) * 4)) - 1);
+        uint256 parent;
         uint8 length;
         for (uint8 i = 0; i < expectedLength + 1; ++i) {
             console.logBytes32(bytes32(a));
             console.logBytes32(bytes32(b));
-            (branch, length) = wrapper.findBranch(a, b, i);
-            assertEq(bytes32(branch), bytes32(expectedBranch));
+            (parent, length) = wrapper.findParent(a, b, i);
+            assertEq(bytes32(parent), bytes32(expectedParent));
             assertEq(length, expectedLength);
         }
     }
