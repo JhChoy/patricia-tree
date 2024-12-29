@@ -131,6 +131,10 @@ library RadixSegmentTreeLib {
         }
     }
 
+    function loadChildrenMap(RadixSegmentTree storage tree, Data memory data) internal view returns (uint256) {
+        return tree.children[encodeData(data)];
+    }
+
     function encodeData(Data memory v) internal pure returns (uint256) {
         return v.value << 8 | v.length;
     }

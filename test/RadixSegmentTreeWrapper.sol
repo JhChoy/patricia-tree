@@ -36,4 +36,8 @@ contract RadixSegmentTreeWrapper {
     function loadNode(RadixSegmentTreeLib.Data calldata data) external view returns (uint256) {
         return RadixSegmentTreeLib.encodeData(tree.loadNode(data).data);
     }
+
+    function loadChildrenMap(RadixSegmentTreeLib.Data calldata data) external view returns (uint256) {
+        return tree.loadChildrenMap(data);
+    }
 }

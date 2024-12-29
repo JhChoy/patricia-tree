@@ -23,6 +23,7 @@ contract RadixSegmentTreeTest is Test {
         assertEq(mid, 0);
         assertEq(right, 0);
         wrapper.add(0xbad124beef911);
+        assertEq(wrapper.loadRootNode(), 0xbad124beef911);
         (left, mid, right) = wrapper.query(0xbad124beef911);
         assertEq(left, 0);
         assertEq(mid, 1);
@@ -39,10 +40,72 @@ contract RadixSegmentTreeTest is Test {
 
     function testAdd2() public {
         wrapper.add(0xdeadbeef);
+        assertEq(wrapper.loadRootNode(), 0xdeadbeef_40);
         wrapper.add(0xdeadbee3);
+        assertEq(wrapper.loadRootNode(), 0xdeadbee0_3f);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
+        assertEq(
+            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
+            0x0001000000000000000000000000000000000000000000000001000000000000
+        );
+        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
         wrapper.add(0xceadbeef);
+        assertEq(wrapper.loadRootNode(), 0x38);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
+        assertEq(
+            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x38, 0)),
+            0x0000000000020001000000000000000000000000000000000000000000000000
+        );
+        assertEq(
+            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
+            0x0001000000000000000000000000000000000000000000000001000000000000
+        );
+        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
         wrapper.add(0x1eadbeef);
+        assertEq(wrapper.loadRootNode(), 0x38);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0x10000000)), 0x1eadbeef40);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
+        assertEq(
+            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x38, 0)),
+            0x0000000000020001000000000000000000000000000000000000000000010000
+        );
+        assertEq(
+            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
+            0x0001000000000000000000000000000000000000000000000001000000000000
+        );
+        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0x1eadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
         wrapper.add(0xdeadbeef);
+        assertEq(wrapper.loadRootNode(), 0x38);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0x10000000)), 0x1eadbeef40);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
+        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
+        assertEq(
+            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x38, 0)),
+            0x0000000000030001000000000000000000000000000000000000000000010000
+        );
+        assertEq(
+            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
+            0x0002000000000000000000000000000000000000000000000001000000000000
+        );
+        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0x1eadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
 
         uint256 left;
         uint256 mid;
