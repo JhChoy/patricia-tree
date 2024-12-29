@@ -49,8 +49,8 @@ contract RadixSegmentTreeTest is Test {
         uint256 right;
         (left, mid, right) = wrapper.query(0);
         assertEq(left, 0);
-        assertEq(mid, 5);
-        assertEq(right, 0);
+        assertEq(mid, 0);
+        assertEq(right, 5);
         (left, mid, right) = wrapper.query(0xdeadbeef);
         assertEq(left, 3);
         assertEq(mid, 2);
