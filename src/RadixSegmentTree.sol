@@ -55,7 +55,8 @@ library RadixSegmentTreeLib {
     }
 
     function findParent(uint256 a, uint256 b, uint8 offset) internal pure returns (Data memory parent) {
-        require(a != b && offset < MAX_LENGTH);
+        if (a == b) return Data({length: MAX_LENGTH, value: a});
+        require(offset < MAX_LENGTH);
         assembly {
             // a = 0x132xx...x
             // b = 0x134xx...x
