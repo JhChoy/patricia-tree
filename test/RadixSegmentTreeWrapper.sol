@@ -28,4 +28,12 @@ contract RadixSegmentTreeWrapper {
     function findParent(uint256 a, uint256 b, uint8 offset) external pure returns (RadixSegmentTreeLib.Data memory) {
         return RadixSegmentTreeLib.findParent(a, b, offset);
     }
+
+    function loadRootNode() external view returns (uint256) {
+        return RadixSegmentTreeLib.encodeData(tree.loadRootNode().data);
+    }
+
+    function loadNode(RadixSegmentTreeLib.Data calldata data) external view returns (uint256) {
+        return RadixSegmentTreeLib.encodeData(tree.loadNode(data).data);
+    }
 }

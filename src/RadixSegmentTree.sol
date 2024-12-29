@@ -96,42 +96,46 @@ library RadixSegmentTreeLib {
         slot = keccak256(abi.encodePacked(ROOT, slot, addr));
     }
 
-    function _loadRootNode(RadixSegmentTree storage tree) private view returns (Node memory root) {
+    function loadRootNode(RadixSegmentTree storage tree) internal view returns (Node memory root) {
+        // todo: perf
         uint256 data;
-        uint256 slot;
+        uint256 addr;
         assembly {
-            data := sload(tree.slot)
-            slot := tree.slot
+            addr := tree.slot
+        }
+        bytes32 slot = _slot(tree, addr);
+        assembly {
+            data := sload(slot)
         }
         root.size = uint16(data & 0xffff);
-        root.data = _decodeData(data >> 16);
-        root.addr = slot;
+        root.data = decodeData(data >> 16);
+        root.addr = addr;
     }
 
-    function _loadNode(RadixSegmentTree storage tree, Data memory addr) private view returns (Node memory node) {
-        node.addr = _encodeData(addr);
+    function loadNode(RadixSegmentTree storage tree, Data memory addr) internal view returns (Node memory node) {
+        node.addr = encodeData(addr);
         bytes32 slot = _slot(tree, node.addr);
         uint256 data;
         assembly {
             data := sload(slot)
         }
         node.size = uint16(data & 0xffff);
-        node.data = _decodeData(data >> 16);
+        node.data = decodeData(data >> 16);
     }
 
-    function _storeNode(RadixSegmentTree storage tree, Node memory node) private {
+    function storeNode(RadixSegmentTree storage tree, Node memory node) internal {
         bytes32 slot = _slot(tree, node.addr);
-        uint256 data = _encodeData(node.data) << 16 | node.size;
+        uint256 data = encodeData(node.data) << 16 | node.size;
         assembly {
             sstore(slot, data)
         }
     }
 
-    function _encodeData(Data memory v) private pure returns (uint256) {
+    function encodeData(Data memory v) internal pure returns (uint256) {
         return v.value << 8 | v.length;
     }
 
-    function _decodeData(uint256 v) private pure returns (Data memory) {
+    function decodeData(uint256 v) internal pure returns (Data memory) {
         return Data(uint8(v & 0xff), v >> 8);
     }
 }
