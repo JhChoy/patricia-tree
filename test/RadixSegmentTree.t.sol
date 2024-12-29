@@ -23,7 +23,7 @@ contract RadixSegmentTreeTest is Test {
         assertEq(mid, 0);
         assertEq(right, 0);
         wrapper.add(0xbad124beef911);
-        assertEq(wrapper.loadRootNode(), 0xbad124beef911);
+        assertEq(wrapper.loadRootNode(), 0xbad124beef91140);
         (left, mid, right) = wrapper.query(0xbad124beef911);
         assertEq(left, 0);
         assertEq(mid, 1);
@@ -155,10 +155,13 @@ contract RadixSegmentTreeTest is Test {
         assertEq(parent.length, 61);
         vm.expectRevert(abi.encodeWithSelector(RadixSegmentTreeLib.WrongOffset.selector));
         parent = wrapper.findParent(0x1234abc, 0x1234bbb, 62);
+
+        parent = wrapper.findParent(0x1234abc, 0x1234abc, 0);
+        assertEq(parent.value, 0x1234abc);
+        assertEq(parent.length, 64);
     }
 
     function testFindParentFuzz1(uint232 a, uint232 b) public view {
-        vm.assume(a != b);
         wrapper.findParent(a, b, 0);
     }
 
@@ -169,8 +172,6 @@ contract RadixSegmentTreeTest is Test {
         expectedParent = expectedLength == 0 ? 0 : a & ~((1 << ((64 - expectedLength) * 4)) - 1);
         RadixSegmentTreeLib.Data memory parent;
         for (uint8 i = 0; i < expectedLength + 1; ++i) {
-            console.logBytes32(bytes32(a));
-            console.logBytes32(bytes32(b));
             parent = wrapper.findParent(a, b, i);
             assertEq(bytes32(parent.value), bytes32(expectedParent));
             assertEq(parent.length, expectedLength);
