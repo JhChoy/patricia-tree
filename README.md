@@ -1,1 +1,1 @@
-# Radix-Segment-Tree
+# Patricia-Segment-Tree

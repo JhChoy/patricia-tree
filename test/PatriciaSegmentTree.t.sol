@@ -2,16 +2,16 @@
 
 pragma solidity ^0.8.13;
 
-import "../src/RadixSegmentTree.sol";
-import "./RadixSegmentTreeWrapper.sol";
+import "../src/PatriciaSegmentTree.sol";
+import "./PatriciaSegmentTreeWrapper.sol";
 
 import "forge-std/Test.sol";
 
-contract RadixSegmentTreeTest is Test {
-    RadixSegmentTreeWrapper public wrapper;
+contract PatriciaSegmentTreeTest is Test {
+    PatriciaSegmentTreeWrapper public wrapper;
 
     function setUp() public {
-        wrapper = new RadixSegmentTreeWrapper();
+        wrapper = new PatriciaSegmentTreeWrapper();
     }
 
     function testAdd1() public {
@@ -43,69 +43,69 @@ contract RadixSegmentTreeTest is Test {
         assertEq(wrapper.loadRootNode(), 0xdeadbeef_40);
         wrapper.add(0xdeadbee3);
         assertEq(wrapper.loadRootNode(), 0xdeadbee0_3f);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
         assertEq(
-            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
+            wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
             0x0001000000000000000000000000000000000000000000000001000000000000
         );
-        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
+        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
         wrapper.add(0xceadbeef);
         assertEq(wrapper.loadRootNode(), 0x38);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
         assertEq(
-            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x38, 0)),
+            wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x38, 0)),
             0x0000000000020001000000000000000000000000000000000000000000000000
         );
         assertEq(
-            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
+            wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
             0x0001000000000000000000000000000000000000000000000001000000000000
         );
-        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
+        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
         wrapper.add(0x1eadbeef);
         assertEq(wrapper.loadRootNode(), 0x38);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0x10000000)), 0x1eadbeef40);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0x10000000)), 0x1eadbeef40);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
         assertEq(
-            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x38, 0)),
+            wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x38, 0)),
             0x0000000000020001000000000000000000000000000000000000000000010000
         );
         assertEq(
-            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
+            wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
             0x0001000000000000000000000000000000000000000000000001000000000000
         );
-        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0x1eadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
+        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0x1eadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
         wrapper.add(0xdeadbeef);
         assertEq(wrapper.loadRootNode(), 0x38);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0x10000000)), 0x1eadbeef40);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
-        assertEq(wrapper.loadNode(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0x10000000)), 0x1eadbeef40);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
+        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
         assertEq(
-            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x38, 0)),
+            wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x38, 0)),
             0x0000000000030001000000000000000000000000000000000000000000010000
         );
         assertEq(
-            wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
+            wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
             0x0002000000000000000000000000000000000000000000000001000000000000
         );
-        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0x1eadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(RadixSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
+        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0x1eadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
+        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
 
         uint256 left;
         uint256 mid;
@@ -143,7 +143,7 @@ contract RadixSegmentTreeTest is Test {
     }
 
     function testFindParent() public {
-        RadixSegmentTreeLib.Data memory parent;
+        PatriciaSegmentTreeLib.Data memory parent;
         parent = wrapper.findParent(0x1, 0x2, 0);
         assertEq(parent.value, 0);
         assertEq(parent.length, 63);
@@ -153,7 +153,7 @@ contract RadixSegmentTreeTest is Test {
         parent = wrapper.findParent(0x1234abc, 0x1234bbb, 61);
         assertEq(parent.value, 0x1234000);
         assertEq(parent.length, 61);
-        vm.expectRevert(abi.encodeWithSelector(RadixSegmentTreeLib.WrongOffset.selector));
+        vm.expectRevert(abi.encodeWithSelector(PatriciaSegmentTreeLib.WrongOffset.selector));
         parent = wrapper.findParent(0x1234abc, 0x1234bbb, 62);
 
         parent = wrapper.findParent(0x1234abc, 0x1234abc, 0);
@@ -170,7 +170,7 @@ contract RadixSegmentTreeTest is Test {
         uint8 expectedLength = 63 - p / 4;
         uint256 expectedParent;
         expectedParent = expectedLength == 0 ? 0 : a & ~((1 << ((64 - expectedLength) * 4)) - 1);
-        RadixSegmentTreeLib.Data memory parent;
+        PatriciaSegmentTreeLib.Data memory parent;
         for (uint8 i = 0; i < expectedLength + 1; ++i) {
             parent = wrapper.findParent(a, b, i);
             assertEq(bytes32(parent.value), bytes32(expectedParent));

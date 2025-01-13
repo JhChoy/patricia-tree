@@ -4,21 +4,22 @@ pragma solidity ^0.8.0;
 
 import {Uint16Pack} from "./libraries/Uint16Pack.sol";
 
-/// @notice Radix-Segment Tree implementation.
-/// @author JChoy (https://github.com/JhChoy/radix-segment-tree/blob/master/src/RadixSegmentTree.sol)
-library RadixSegmentTreeLib {
+/// @notice Patricia-Segment Tree implementation.
+/// @author JChoy (https://github.com/JhChoy/patricia-tree/blob/master/src/PatriciaSegmentTree.sol)
+library PatriciaSegmentTreeLib {
     using Uint16Pack for uint256;
 
     error OutOfRange();
     error WrongOffset();
+    error NotExist();
 
-    // bytes32(uint256(keccak256("RadixSegmentTree")) - 1)
-    uint256 internal constant ROOT = 0x93d586536338c237314802209ad99ffc16300a0123983a9edf87427344edd372;
+    // bytes32(uint256(keccak256("PatriciaSegmentTree")) - 1)
+    uint256 internal constant ROOT = 0x5180cb82e974432c1052ba49aed787b94bb44eef3071ff1a62b3a83da765be79;
     uint256 internal constant MAX_VALUE = 2 ** 232 - 1;
     uint8 internal constant MAX_LENGTH = 64;
     uint8 internal constant MAX_OFFSET = 63;
 
-    struct RadixSegmentTree {
+    struct PatriciaSegmentTree {
         mapping(uint256 data => uint256) children;
     }
 
@@ -38,13 +39,13 @@ library RadixSegmentTreeLib {
         if (value > MAX_VALUE) revert OutOfRange();
     }
 
-    function add(RadixSegmentTree storage tree, uint256 value) internal {
+    function add(PatriciaSegmentTree storage tree, uint256 value) internal {
         _checkRange(value);
         Node memory root = loadRootNode(tree);
         _add(tree, root, Data({length: MAX_LENGTH, value: value}), 0);
     }
 
-    function _add(RadixSegmentTree storage tree, Node memory node, Data memory data, uint8 offset) private {
+    function _add(PatriciaSegmentTree storage tree, Node memory node, Data memory data, uint8 offset) private {
         if (node.size == 0) {
             node.size = 1;
             node.data = data;
@@ -119,22 +120,22 @@ library RadixSegmentTreeLib {
         }
     }
 
-    function remove(RadixSegmentTree storage tree, uint256 value) internal {
+    function remove(PatriciaSegmentTree storage tree, uint256 value) internal {
         _checkRange(value);
     }
 
-    function update(RadixSegmentTree storage tree, uint256 from, uint256 to) internal {
+    function update(PatriciaSegmentTree storage tree, uint256 from, uint256 to) internal {
         _checkRange(from);
         _checkRange(to);
     }
 
-    function query(RadixSegmentTree storage tree, uint256 value) internal view returns (uint256, uint256, uint256) {
+    function query(PatriciaSegmentTree storage tree, uint256 value) internal view returns (uint256, uint256, uint256) {
         _checkRange(value);
         Node memory root = loadRootNode(tree);
         return _query(tree, root, value, 0);
     }
 
-    function _query(RadixSegmentTree storage tree, Node memory node, uint256 value, uint8 offset)
+    function _query(PatriciaSegmentTree storage tree, Node memory node, uint256 value, uint8 offset)
         private
         view
         returns (uint256 left, uint256 mid, uint256 right)
@@ -213,14 +214,14 @@ library RadixSegmentTreeLib {
         require(parent.value <= a && parent.value <= b);
     }
 
-    function _slot(RadixSegmentTree storage tree, uint256 addr) private pure returns (bytes32 slot) {
+    function _slot(PatriciaSegmentTree storage tree, uint256 addr) private pure returns (bytes32 slot) {
         assembly {
             slot := tree.slot
         }
         slot = keccak256(abi.encodePacked(ROOT, slot, addr));
     }
 
-    function loadRootNode(RadixSegmentTree storage tree) internal view returns (Node memory root) {
+    function loadRootNode(PatriciaSegmentTree storage tree) internal view returns (Node memory root) {
         // todo: perf
         uint256 data;
         uint256 addr;
@@ -236,7 +237,7 @@ library RadixSegmentTreeLib {
         root.addr = addr;
     }
 
-    function loadNode(RadixSegmentTree storage tree, Data memory addr) internal view returns (Node memory node) {
+    function loadNode(PatriciaSegmentTree storage tree, Data memory addr) internal view returns (Node memory node) {
         node.addr = encodeData(addr);
         bytes32 slot = _slot(tree, node.addr);
         uint256 data;
@@ -247,7 +248,7 @@ library RadixSegmentTreeLib {
         node.data = decodeData(data >> 16);
     }
 
-    function storeNode(RadixSegmentTree storage tree, Node memory node) internal {
+    function storeNode(PatriciaSegmentTree storage tree, Node memory node) internal {
         bytes32 slot = _slot(tree, node.addr);
         uint256 data = encodeData(node.data) << 16 | node.size;
         assembly {
@@ -255,7 +256,7 @@ library RadixSegmentTreeLib {
         }
     }
 
-    function loadChildrenMap(RadixSegmentTree storage tree, Data memory data) internal view returns (uint256) {
+    function loadChildrenMap(PatriciaSegmentTree storage tree, Data memory data) internal view returns (uint256) {
         return tree.children[encodeData(data)];
     }
 
