@@ -9,19 +9,19 @@ contract PatriciaSegmentTreeWrapper {
 
     PatriciaSegmentTreeLib.PatriciaSegmentTree internal tree;
 
-    function add(uint232 value) external {
+    function add(uint248 value) external {
         tree.add(value);
     }
 
-    function remove(uint232 value) external {
+    function remove(uint248 value) external {
         tree.remove(value);
     }
 
-    function update(uint232 from, uint232 to) external {
+    function update(uint248 from, uint248 to) external {
         tree.update(from, to);
     }
 
-    function query(uint232 value) external view returns (uint256 left, uint256 mid, uint256 right) {
+    function query(uint248 value) external view returns (uint256 left, uint256 mid, uint256 right) {
         return tree.query(value);
     }
 

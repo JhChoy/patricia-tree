@@ -23,7 +23,7 @@ contract PatriciaSegmentTreeTest is Test {
         assertEq(mid, 0);
         assertEq(right, 0);
         wrapper.add(0xbad124beef911);
-        assertEq(wrapper.loadRootNode(), 0xbad124beef91140);
+        assertEq32(wrapper.loadRootNode(), 0xbad124beef911_40);
         (left, mid, right) = wrapper.query(0xbad124beef911);
         assertEq(left, 0);
         assertEq(mid, 1);
@@ -176,5 +176,9 @@ contract PatriciaSegmentTreeTest is Test {
             assertEq(bytes32(parent.value), bytes32(expectedParent));
             assertEq(parent.length, expectedLength);
         }
+    }
+
+    function assertEq32(uint256 a, uint256 b) public pure {
+        assertEq32(bytes32(a), bytes32(b));
     }
 }

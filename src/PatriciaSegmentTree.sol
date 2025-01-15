@@ -7,6 +7,7 @@ import {Uint16Pack} from "./libraries/Uint16Pack.sol";
 /// @notice Patricia-Segment Tree implementation.
 /// @author JChoy (https://github.com/JhChoy/patricia-tree/blob/master/src/PatriciaSegmentTree.sol)
 library PatriciaSegmentTreeLib {
+    using PatriciaSegmentTreeLib for PatriciaSegmentTree;
     using Uint16Pack for uint256;
 
     error OutOfRange();
@@ -15,12 +16,13 @@ library PatriciaSegmentTreeLib {
 
     // bytes32(uint256(keccak256("PatriciaSegmentTree")) - 1)
     uint256 internal constant ROOT = 0x5180cb82e974432c1052ba49aed787b94bb44eef3071ff1a62b3a83da765be79;
-    uint256 internal constant MAX_VALUE = 2 ** 232 - 1;
+    uint256 internal constant MAX_VALUE = 2 ** 248 - 1;
     uint8 internal constant MAX_LENGTH = 64;
     uint8 internal constant MAX_OFFSET = 63;
 
     struct PatriciaSegmentTree {
         mapping(uint256 data => uint256) children;
+        uint16 rootSize;
     }
 
     struct Data {
@@ -29,8 +31,6 @@ library PatriciaSegmentTreeLib {
     }
 
     struct Node {
-        // todo: remove size
-        uint16 size;
         Data data;
         uint256 addr; // @dev tree.slot or encoded value
     }
@@ -42,35 +42,31 @@ library PatriciaSegmentTreeLib {
     function add(PatriciaSegmentTree storage tree, uint256 value) internal {
         _checkRange(value);
         Node memory root = loadRootNode(tree);
-        _add(tree, root, Data({length: MAX_LENGTH, value: value}), 0);
+        _add(tree, root, Data({length: MAX_LENGTH, value: value}), ++tree.rootSize, 0);
     }
 
-    function _add(PatriciaSegmentTree storage tree, Node memory node, Data memory data, uint8 offset) private {
-        if (node.size == 0) {
-            node.size = 1;
+    function _add(PatriciaSegmentTree storage tree, Node memory node, Data memory data, uint16 size, uint8 offset)
+        private
+    {
+        if (size == 1) {
             node.data = data;
             storeNode(tree, node);
             return;
         }
+
         Data memory parent = findParent(node.data.value, data.value, offset);
         if (node.data.length < parent.length) {
             parent = node.data;
         }
         if (parent.length == node.data.length) {
-            if (parent.length == MAX_LENGTH) {
-                node.size += 1;
-                storeNode(tree, node);
-            } else {
-                // Increase the size.
-                node.size += 1;
-                storeNode(tree, node);
-
+            if (parent.length < MAX_LENGTH) {
                 // Get the next hex digit.
                 uint8 nextHex = uint8((data.value >> ((MAX_OFFSET - parent.length) << 2)) & 0xf);
 
                 // Increase the count of the child node.
                 uint256 encodedData = encodeData(parent);
-                tree.children[encodedData] = tree.children[encodedData].add16Unsafe(nextHex, 1);
+                uint256 children = tree.children[encodedData].add16Unsafe(nextHex, 1);
+                tree.children[encodedData] = children;
 
                 // Find the child node.
                 Node memory childNode = loadNode(
@@ -80,20 +76,19 @@ library PatriciaSegmentTreeLib {
                         value: parent.value + (uint256(nextHex) << ((MAX_OFFSET - parent.length) << 2))
                     })
                 );
-                _add(tree, childNode, data, parent.length + 1);
+                _add(tree, childNode, data, children.get16Unsafe(nextHex), parent.length + 1);
             }
         } else {
-            Node memory parentNode = Node({size: node.size + 1, data: parent, addr: node.addr});
+            Node memory parentNode = Node({data: parent, addr: node.addr});
             storeNode(tree, parentNode);
             uint8 incomingHex = uint8((data.value >> ((MAX_OFFSET - parent.length) << 2)) & 0xf);
             uint8 movedHex = uint8((node.data.value >> ((MAX_OFFSET - parent.length) << 2)) & 0xf);
             uint256 encodedData = encodeData(parent);
-            tree.children[encodedData] = uint256(0).add16Unsafe(incomingHex, 1).add16Unsafe(movedHex, node.size);
+            tree.children[encodedData] = uint256(0).add16Unsafe(incomingHex, 1).add16Unsafe(movedHex, size - 1);
             // Store moved node.
             storeNode(
                 tree,
                 Node({
-                    size: node.size,
                     data: node.data,
                     addr: encodeData(
                         Data({
@@ -107,7 +102,6 @@ library PatriciaSegmentTreeLib {
             storeNode(
                 tree,
                 Node({
-                    size: 1,
                     data: data,
                     addr: encodeData(
                         Data({
@@ -131,33 +125,34 @@ library PatriciaSegmentTreeLib {
 
     function query(PatriciaSegmentTree storage tree, uint256 value) internal view returns (uint256, uint256, uint256) {
         _checkRange(value);
+
         Node memory root = loadRootNode(tree);
-        return _query(tree, root, value, 0);
+        return _query(tree, root, value, tree.rootSize, 0);
     }
 
-    function _query(PatriciaSegmentTree storage tree, Node memory node, uint256 value, uint8 offset)
+    function _query(PatriciaSegmentTree storage tree, Node memory node, uint256 value, uint16 size, uint8 offset)
         private
         view
         returns (uint256 left, uint256 mid, uint256 right)
     {
-        if (node.size == 0) return (0, 0, 0);
+        if (size == 0) return (0, 0, 0);
 
         if (node.data.length == MAX_LENGTH) {
             if (node.data.value < value) {
-                return (node.size, 0, 0);
+                return (size, 0, 0);
             } else if (node.data.value > value) {
-                return (0, 0, node.size);
+                return (0, 0, size);
             } else {
-                return (0, node.size, 0);
+                return (0, size, 0);
             }
         }
 
         Data memory parent = findParent(node.data.value, value, offset);
         if (node.data.value != parent.value) {
             if (node.data.value > parent.value) {
-                return (0, 0, node.size);
+                return (0, 0, size);
             } else {
-                return (node.size, 0, 0);
+                return (size, 0, 0);
             }
         }
 
@@ -170,11 +165,11 @@ library PatriciaSegmentTreeLib {
                 value: node.data.value + (uint256(hexDigit) << ((MAX_OFFSET - node.data.length) << 2))
             })
         );
-        (left, mid, right) = _query(tree, childNode, value, node.data.length + 1);
+        uint256 childrenMap = tree.loadChildrenMap(node.data);
+        (left, mid, right) = _query(tree, childNode, value, childrenMap.get16Unsafe(hexDigit), node.data.length + 1);
 
-        uint256 encodedData = encodeData(node.data);
-        left += tree.children[encodedData].sum16Unsafe(0, hexDigit);
-        right += tree.children[encodedData].sum16Unsafe(hexDigit + 1, 16);
+        left += childrenMap.sum16Unsafe(0, hexDigit);
+        right += childrenMap.sum16Unsafe(hexDigit + 1, 16);
     }
 
     function findParent(uint256 a, uint256 b, uint8 offset) internal pure returns (Data memory parent) {
@@ -232,8 +227,7 @@ library PatriciaSegmentTreeLib {
         assembly {
             data := sload(slot)
         }
-        root.size = uint16(data & 0xffff);
-        root.data = decodeData(data >> 16);
+        root.data = decodeData(data);
         root.addr = addr;
     }
 
@@ -244,13 +238,12 @@ library PatriciaSegmentTreeLib {
         assembly {
             data := sload(slot)
         }
-        node.size = uint16(data & 0xffff);
-        node.data = decodeData(data >> 16);
+        node.data = decodeData(data);
     }
 
     function storeNode(PatriciaSegmentTree storage tree, Node memory node) internal {
         bytes32 slot = _slot(tree, node.addr);
-        uint256 data = encodeData(node.data) << 16 | node.size;
+        uint256 data = encodeData(node.data);
         assembly {
             sstore(slot, data)
         }
