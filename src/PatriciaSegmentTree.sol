@@ -42,7 +42,7 @@ library PatriciaSegmentTreeLib {
     function add(PatriciaSegmentTree storage tree, uint256 value) internal {
         _checkRange(value);
 
-        Node memory currentNode = loadRootNode(tree);
+        Node memory currentNode = tree.loadRootNode();
         uint16 newSize = ++tree.rootSize;
 
         Data memory data = Data({length: MAX_LENGTH, value: value});
@@ -52,7 +52,7 @@ library PatriciaSegmentTreeLib {
             // If this is the first value, store it in the root.
             if (newSize == 1) {
                 currentNode.data = data;
-                storeNode(tree, currentNode);
+                tree.storeNode(currentNode);
                 return;
             }
 
@@ -76,8 +76,7 @@ library PatriciaSegmentTreeLib {
                     tree.children[encodedData] = children;
 
                     // Load child node
-                    Node memory childNode = loadNode(
-                        tree,
+                    Node memory childNode = tree.loadNode(
                         Data({
                             length: parent.length + 1,
                             value: parent.value + (uint256(nextHex) << ((MAX_OFFSET - parent.length) << 2))
@@ -95,7 +94,7 @@ library PatriciaSegmentTreeLib {
             } else {
                 // Create new parent node and store it.
                 Node memory parentNode = Node({data: parent, addr: currentNode.addr});
-                storeNode(tree, parentNode);
+                tree.storeNode(parentNode);
 
                 uint8 incomingHex = uint8((data.value >> ((MAX_OFFSET - parent.length) << 2)) & 0xF);
                 uint8 movedHex = uint8((currentNode.data.value >> ((MAX_OFFSET - parent.length) << 2)) & 0xF);
@@ -111,7 +110,7 @@ library PatriciaSegmentTreeLib {
                         length: parent.length + 1,
                         value: parent.value + (uint256(movedHex) << ((MAX_OFFSET - parent.length) << 2))
                     });
-                    storeNode(tree, Node({data: currentNode.data, addr: encodeData(movedData)}));
+                    tree.storeNode(Node({data: currentNode.data, addr: encodeData(movedData)}));
                 }
 
                 // Store incoming node.
@@ -120,7 +119,7 @@ library PatriciaSegmentTreeLib {
                         length: parent.length + 1,
                         value: parent.value + (uint256(incomingHex) << ((MAX_OFFSET - parent.length) << 2))
                     });
-                    storeNode(tree, Node({data: data, addr: encodeData(incomingData)}));
+                    tree.storeNode(Node({data: data, addr: encodeData(incomingData)}));
                 }
 
                 return;
@@ -144,7 +143,7 @@ library PatriciaSegmentTreeLib {
     {
         _checkRange(value);
 
-        Node memory currentNode = loadRootNode(tree);
+        Node memory currentNode = tree.loadRootNode();
         uint16 size = tree.rootSize;
         uint8 offset = 0;
 
