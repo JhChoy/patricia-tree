@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.0;
 
+import {LibBit} from "./libraries/LibBit.sol";
 import {Uint16Pack} from "./libraries/Uint16Pack.sol";
 
 /// @notice Patricia-Segment Tree implementation.
@@ -213,39 +214,23 @@ library PatriciaSegmentTreeLib {
 
     function findParent(uint256 a, uint256 b, uint8 offset) internal pure returns (Data memory parent) {
         if (a == b) return Data({length: MAX_LENGTH, value: a});
-        require(offset < MAX_LENGTH);
-        // todo: binary search
+        if (offset >= MAX_LENGTH) revert WrongOffset();
+
+        uint256 lz = LibBit.clz(a ^ b);
+
         assembly {
-            // a = 0x132xx...x
-            // b = 0x134xx...x
-            // c = 0xffxxx...x
-            let c := not(xor(a, b))
-            // Generate `offset` number of 0x`f`s at the front.
-            offset := sub(MAX_LENGTH, offset)
-            let lastMask := not(sub(shl(shl(2, offset), 1), 1)) // ~((1 << (offset << 2)) - 1)
-            if lt(c, lastMask) {
-                mstore(0x00, 0xea08b33a) // `WrongOffset()`.
+            let matchedNibbles := div(lz, 4)
+            if lt(matchedNibbles, offset) {
+                mstore(0x00, 0xea08b33a) // 'WrongOffset'
                 revert(0x1c, 0x04)
             }
-            for {} true {} {
-                offset := sub(offset, 1)
-                // Append 0xf to the last mask
-                // lastMask + (0xf << (offset << 2))
-                let mask := add(lastMask, shl(shl(2, offset), 0xf))
-                // If c < mask, then a and b have different hex digits.
-                // 0xffffxxx...xx < 0xfffff00...00
-                if lt(c, mask) {
-                    mstore(add(parent, 0x20), and(a, lastMask))
-                    // Find the length of the common prefix.
-                    // `offset` cannot be 64, because a != b.
-                    mstore(parent, sub(MAX_OFFSET, offset))
-                    break
-                }
-                lastMask := mask
-            }
+
+            let l := matchedNibbles
+            let shiftBits := mul(sub(MAX_LENGTH, l), 4)
+            let v := shl(shiftBits, shr(shiftBits, a))
+            mstore(add(parent, 0x20), v)
+            mstore(parent, l)
         }
-        // Sanity check
-        require(parent.value <= a && parent.value <= b);
     }
 
     function _slot(PatriciaSegmentTree storage tree, uint256 addr) private pure returns (bytes32 slot) {
