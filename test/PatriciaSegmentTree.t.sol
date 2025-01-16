@@ -40,72 +40,72 @@ contract PatriciaSegmentTreeTest is Test {
 
     function testAdd2() public {
         wrapper.add(0xdeadbeef);
-        assertEq(wrapper.loadRootNode(), 0xdeadbeef_40);
+        assertEq32(wrapper.loadRootNode(), 0xdeadbeef_40);
         wrapper.add(0xdeadbee3);
-        assertEq(wrapper.loadRootNode(), 0xdeadbee0_3f);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
-        assertEq(
+        assertEq32(wrapper.loadRootNode(), 0xdeadbee0_3f);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
+        assertEq32(
             wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
             0x0001000000000000000000000000000000000000000000000001000000000000
         );
-        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
+        assertEq32(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
+        assertEq32(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
         wrapper.add(0xceadbeef);
-        assertEq(wrapper.loadRootNode(), 0x38);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
-        assertEq(
+        assertEq32(wrapper.loadRootNode(), 0x38);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
+        assertEq32(
             wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x38, 0)),
             0x0000000000020001000000000000000000000000000000000000000000000000
         );
-        assertEq(
+        assertEq32(
             wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
             0x0001000000000000000000000000000000000000000000000001000000000000
         );
-        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
+        assertEq32(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
+        assertEq32(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
+        assertEq32(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
         wrapper.add(0x1eadbeef);
-        assertEq(wrapper.loadRootNode(), 0x38);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0x10000000)), 0x1eadbeef40);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
-        assertEq(
+        assertEq32(wrapper.loadRootNode(), 0x38);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0x10000000)), 0x1eadbeef40);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
+        assertEq32(
             wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x38, 0)),
             0x0000000000020001000000000000000000000000000000000000000000010000
         );
-        assertEq(
+        assertEq32(
             wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
             0x0001000000000000000000000000000000000000000000000001000000000000
         );
-        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0x1eadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
+        assertEq32(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0x1eadbeef)), 0);
+        assertEq32(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
+        assertEq32(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
+        assertEq32(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
         wrapper.add(0xdeadbeef);
-        assertEq(wrapper.loadRootNode(), 0x38);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0x10000000)), 0x1eadbeef40);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
-        assertEq(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
-        assertEq(
+        assertEq32(wrapper.loadRootNode(), 0x38);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0x10000000)), 0x1eadbeef40);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xc0000000)), 0xceadbeef40);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x39, 0xd0000000)), 0xdeadbee03f);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0xdeadbeef_40);
+        assertEq32(wrapper.loadNode(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0xdeadbee3_40);
+        assertEq32(
             wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x38, 0)),
             0x0000000000030001000000000000000000000000000000000000000000010000
         );
-        assertEq(
+        assertEq32(
             wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x3f, 0xdeadbee0)),
             0x0002000000000000000000000000000000000000000000000001000000000000
         );
-        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0x1eadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
-        assertEq(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
+        assertEq32(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0x1eadbeef)), 0);
+        assertEq32(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xceadbeef)), 0);
+        assertEq32(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbeef)), 0);
+        assertEq32(wrapper.loadChildrenMap(PatriciaSegmentTreeLib.Data(0x40, 0xdeadbee3)), 0);
 
         uint256 left;
         uint256 mid;
@@ -136,7 +136,7 @@ contract PatriciaSegmentTreeTest is Test {
         assertEq(right, 3);
     }
 
-    function testAddFuzz(uint232[] calldata values) public {
+    function testAddFuzz(uint248[] calldata values) public {
         for (uint256 i = 0; i < values.length; ++i) {
             wrapper.add(values[i]);
         }
@@ -145,23 +145,23 @@ contract PatriciaSegmentTreeTest is Test {
     function testCommonPrefix() public {
         PatriciaSegmentTreeLib.Data memory prefix;
         prefix = wrapper.commonPrefix(0x1, 0x2, 0);
-        assertEq(prefix.value, 0);
+        assertEq32(prefix.value, 0);
         assertEq(prefix.length, 63);
         prefix = wrapper.commonPrefix(0x1234abc, 0x1234bbb, 0);
-        assertEq(prefix.value, 0x1234000);
+        assertEq32(prefix.value, 0x1234000);
         assertEq(prefix.length, 61);
         prefix = wrapper.commonPrefix(0x1234abc, 0x1234bbb, 61);
-        assertEq(prefix.value, 0x1234000);
+        assertEq32(prefix.value, 0x1234000);
         assertEq(prefix.length, 61);
         vm.expectRevert(abi.encodeWithSelector(PatriciaSegmentTreeLib.WrongOffset.selector));
         prefix = wrapper.commonPrefix(0x1234abc, 0x1234bbb, 62);
 
         prefix = wrapper.commonPrefix(0x1234abc, 0x1234abc, 0);
-        assertEq(prefix.value, 0x1234abc);
+        assertEq32(prefix.value, 0x1234abc);
         assertEq(prefix.length, 64);
     }
 
-    function testCommonPrefixFuzz1(uint232 a, uint232 b) public view {
+    function testCommonPrefixFuzz1(uint248 a, uint248 b) public view {
         wrapper.commonPrefix(a, b, 0);
     }
 
@@ -173,7 +173,7 @@ contract PatriciaSegmentTreeTest is Test {
         PatriciaSegmentTreeLib.Data memory prefix;
         for (uint8 i = 0; i < expectedLength + 1; ++i) {
             prefix = wrapper.commonPrefix(a, b, i);
-            assertEq(bytes32(prefix.value), bytes32(expectedPrefix));
+            assertEq32(prefix.value, expectedPrefix);
             assertEq(prefix.length, expectedLength);
         }
     }
