@@ -142,39 +142,39 @@ contract PatriciaSegmentTreeTest is Test {
         }
     }
 
-    function testFindParent() public {
-        PatriciaSegmentTreeLib.Data memory parent;
-        parent = wrapper.findParent(0x1, 0x2, 0);
-        assertEq(parent.value, 0);
-        assertEq(parent.length, 63);
-        parent = wrapper.findParent(0x1234abc, 0x1234bbb, 0);
-        assertEq(parent.value, 0x1234000);
-        assertEq(parent.length, 61);
-        parent = wrapper.findParent(0x1234abc, 0x1234bbb, 61);
-        assertEq(parent.value, 0x1234000);
-        assertEq(parent.length, 61);
+    function testCommonPrefix() public {
+        PatriciaSegmentTreeLib.Data memory prefix;
+        prefix = wrapper.commonPrefix(0x1, 0x2, 0);
+        assertEq(prefix.value, 0);
+        assertEq(prefix.length, 63);
+        prefix = wrapper.commonPrefix(0x1234abc, 0x1234bbb, 0);
+        assertEq(prefix.value, 0x1234000);
+        assertEq(prefix.length, 61);
+        prefix = wrapper.commonPrefix(0x1234abc, 0x1234bbb, 61);
+        assertEq(prefix.value, 0x1234000);
+        assertEq(prefix.length, 61);
         vm.expectRevert(abi.encodeWithSelector(PatriciaSegmentTreeLib.WrongOffset.selector));
-        parent = wrapper.findParent(0x1234abc, 0x1234bbb, 62);
+        prefix = wrapper.commonPrefix(0x1234abc, 0x1234bbb, 62);
 
-        parent = wrapper.findParent(0x1234abc, 0x1234abc, 0);
-        assertEq(parent.value, 0x1234abc);
-        assertEq(parent.length, 64);
+        prefix = wrapper.commonPrefix(0x1234abc, 0x1234abc, 0);
+        assertEq(prefix.value, 0x1234abc);
+        assertEq(prefix.length, 64);
     }
 
-    function testFindParentFuzz1(uint232 a, uint232 b) public view {
-        wrapper.findParent(a, b, 0);
+    function testCommonPrefixFuzz1(uint232 a, uint232 b) public view {
+        wrapper.commonPrefix(a, b, 0);
     }
 
-    function testFindParentFuzz2(uint256 a, uint8 p) public view {
+    function testCommonPrefixFuzz2(uint256 a, uint8 p) public view {
         uint256 b = a ^ (1 << p);
         uint8 expectedLength = 63 - p / 4;
-        uint256 expectedParent;
-        expectedParent = expectedLength == 0 ? 0 : a & ~((1 << ((64 - expectedLength) * 4)) - 1);
-        PatriciaSegmentTreeLib.Data memory parent;
+        uint256 expectedPrefix;
+        expectedPrefix = expectedLength == 0 ? 0 : a & ~((1 << ((64 - expectedLength) * 4)) - 1);
+        PatriciaSegmentTreeLib.Data memory prefix;
         for (uint8 i = 0; i < expectedLength + 1; ++i) {
-            parent = wrapper.findParent(a, b, i);
-            assertEq(bytes32(parent.value), bytes32(expectedParent));
-            assertEq(parent.length, expectedLength);
+            prefix = wrapper.commonPrefix(a, b, i);
+            assertEq(bytes32(prefix.value), bytes32(expectedPrefix));
+            assertEq(prefix.length, expectedLength);
         }
     }
 

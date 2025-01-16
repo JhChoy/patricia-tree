@@ -58,34 +58,34 @@ library PatriciaSegmentTreeLib {
             }
 
             // parent = common prefix
-            Data memory parent = findParent(currentNode.data.value, data.value, offset);
+            Data memory prefix = commonPrefix(currentNode.data.value, data.value, offset);
 
             // If the prefix of currentNode is shorter, replace parent.
-            if (currentNode.data.length < parent.length) {
-                parent = currentNode.data;
+            if (currentNode.data.length < prefix.length) {
+                prefix = currentNode.data;
             }
 
-            if (parent.length == currentNode.data.length) {
+            if (prefix.length == currentNode.data.length) {
                 // If we haven't reached the maximum length (=leaf), we need to go down to the child.
-                if (parent.length < MAX_LENGTH) {
+                if (prefix.length < MAX_LENGTH) {
                     // Extract nibble
-                    uint8 nextHex = uint8((data.value >> ((MAX_OFFSET - parent.length) << 2)) & 0xF);
+                    uint8 nextHex = uint8((data.value >> ((MAX_OFFSET - prefix.length) << 2)) & 0xF);
 
                     // Increase child count
-                    uint256 encodedData = encodeData(parent);
+                    uint256 encodedData = encodeData(prefix);
                     uint256 children = tree.children[encodedData].add16Unsafe(nextHex, 1);
                     tree.children[encodedData] = children;
 
                     // Load child node
                     Node memory childNode = tree.loadNode(
                         Data({
-                            length: parent.length + 1,
-                            value: parent.value + (uint256(nextHex) << ((MAX_OFFSET - parent.length) << 2))
+                            length: prefix.length + 1,
+                            value: prefix.value + (uint256(nextHex) << ((MAX_OFFSET - prefix.length) << 2))
                         })
                     );
 
                     currentNode = childNode;
-                    offset = parent.length + 1;
+                    offset = prefix.length + 1;
                     newSize = uint16(children.get16Unsafe(nextHex));
 
                     continue;
@@ -94,13 +94,13 @@ library PatriciaSegmentTreeLib {
                 }
             } else {
                 // Create new parent node and store it.
-                Node memory parentNode = Node({data: parent, addr: currentNode.addr});
+                Node memory parentNode = Node({data: prefix, addr: currentNode.addr});
                 tree.storeNode(parentNode);
 
-                uint8 incomingHex = uint8((data.value >> ((MAX_OFFSET - parent.length) << 2)) & 0xF);
-                uint8 movedHex = uint8((currentNode.data.value >> ((MAX_OFFSET - parent.length) << 2)) & 0xF);
+                uint8 incomingHex = uint8((data.value >> ((MAX_OFFSET - prefix.length) << 2)) & 0xF);
+                uint8 movedHex = uint8((currentNode.data.value >> ((MAX_OFFSET - prefix.length) << 2)) & 0xF);
 
-                uint256 encodedData = encodeData(parent);
+                uint256 encodedData = encodeData(prefix);
                 // Distribute counts to left/right (or branch).
                 // incomingHex = new value, movedHex = existing node
                 tree.children[encodedData] = uint256(0).add16Unsafe(incomingHex, 1).add16Unsafe(movedHex, newSize - 1);
@@ -108,8 +108,8 @@ library PatriciaSegmentTreeLib {
                 // Store moved node.
                 {
                     Data memory movedData = Data({
-                        length: parent.length + 1,
-                        value: parent.value + (uint256(movedHex) << ((MAX_OFFSET - parent.length) << 2))
+                        length: prefix.length + 1,
+                        value: prefix.value + (uint256(movedHex) << ((MAX_OFFSET - prefix.length) << 2))
                     });
                     tree.storeNode(Node({data: currentNode.data, addr: encodeData(movedData)}));
                 }
@@ -117,8 +117,8 @@ library PatriciaSegmentTreeLib {
                 // Store incoming node.
                 {
                     Data memory incomingData = Data({
-                        length: parent.length + 1,
-                        value: parent.value + (uint256(incomingHex) << ((MAX_OFFSET - parent.length) << 2))
+                        length: prefix.length + 1,
+                        value: prefix.value + (uint256(incomingHex) << ((MAX_OFFSET - prefix.length) << 2))
                     });
                     tree.storeNode(Node({data: data, addr: encodeData(incomingData)}));
                 }
@@ -175,11 +175,11 @@ library PatriciaSegmentTreeLib {
             }
 
             // parent = common prefix
-            Data memory parent = findParent(currentNode.data.value, value, offset);
+            Data memory prefix = commonPrefix(currentNode.data.value, value, offset);
 
             // If the prefix is different, all count goes to left or right
-            if (currentNode.data.value != parent.value) {
-                if (currentNode.data.value > parent.value) {
+            if (currentNode.data.value != prefix.value) {
+                if (currentNode.data.value > prefix.value) {
                     right += size;
                 } else {
                     left += size;
@@ -212,7 +212,7 @@ library PatriciaSegmentTreeLib {
         }
     }
 
-    function findParent(uint256 a, uint256 b, uint8 offset) internal pure returns (Data memory parent) {
+    function commonPrefix(uint256 a, uint256 b, uint8 offset) internal pure returns (Data memory prefix) {
         if (a == b) return Data({length: MAX_LENGTH, value: a});
         if (offset >= MAX_LENGTH) revert WrongOffset();
 
@@ -228,8 +228,8 @@ library PatriciaSegmentTreeLib {
             let l := matchedNibbles
             let shiftBits := mul(sub(MAX_LENGTH, l), 4)
             let v := shl(shiftBits, shr(shiftBits, a))
-            mstore(add(parent, 0x20), v)
-            mstore(parent, l)
+            mstore(add(prefix, 0x20), v)
+            mstore(prefix, l)
         }
     }
 

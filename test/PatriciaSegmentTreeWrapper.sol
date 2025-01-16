@@ -25,12 +25,12 @@ contract PatriciaSegmentTreeWrapper {
         return tree.query(value);
     }
 
-    function findParent(uint256 a, uint256 b, uint8 offset)
+    function commonPrefix(uint256 a, uint256 b, uint8 offset)
         external
         pure
         returns (PatriciaSegmentTreeLib.Data memory)
     {
-        return PatriciaSegmentTreeLib.findParent(a, b, offset);
+        return PatriciaSegmentTreeLib.commonPrefix(a, b, offset);
     }
 
     function loadRootNode() external view returns (uint256) {
